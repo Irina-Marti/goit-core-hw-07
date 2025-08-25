@@ -8,9 +8,7 @@ def inner_error(func):
             return 'Give me correct name and phone please'
         except IndexError:
             return 'Not enough arguments'
-        except KeyError as e:
-            if str(e) == "'Contact already exists'":
-                return 'This contact already exists. Please add a new name.'
+        except AttributeError as e:
             return 'Contact not found'
     return inner
 
@@ -37,19 +35,13 @@ def add_contact(args, book: AddressBook):
 def change_contact(args, book: AddressBook):
     name, old_phone, new_phone, *_ = args
     record = book.find(name)
-    if record is None:
-        raise KeyError("Contact not found")
     record.edit_phone(old_phone, new_phone)
     return f'Phone number for {name} was changed to {new_phone}'
 
 @inner_error
 def show_phone(args, book: AddressBook):
-    name = args [0]
+    name = args[0]
     record = book.find(name)
-    if record is None:
-        raise KeyError("Contact not found")
-    if not record.phones:
-        return f'{name} does not have a phone number'
     phone = '; '.join(p.value for p in record.phones)
     return f'{name}: {phone}'
 
@@ -67,16 +59,14 @@ def show_all(book: AddressBook):
 def add_birthday(args, book: AddressBook):
     name, birthday, *_ = args
     record = book.find(name)
-    if not record:
-        raise KeyError("Contact not found")
     record.add_birthday(birthday)
     return f"Birthday for {name} was added."
 
 @inner_error
 def show_birthday(args, book: AddressBook):
-    name = args [0]
+    name = args[0]
     record = book.find(name)
-    if not record or not record.birthday:
+    if not record.birthday:
         return f'{name} does not have a birthday'
     return f"{name}'s birthday is {record.birthday.value}"
 
@@ -87,7 +77,7 @@ def birthdays(args, book: AddressBook):
         return 'No upcoming birthdays this week'
     result = []
     for user in upcoming:
-        result.append(f'{user['name']}: {user['congratulation_date']}')
+        result.append(f"{user['name']}: {user['congratulation_date']}")
     return '\n'.join(result)
 
 
